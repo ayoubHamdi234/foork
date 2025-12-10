@@ -1,0 +1,649 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Login</class>
+ <widget class="QDialog" name="Login">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1200</width>
+    <height>600</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Dialog</string>
+  </property>
+  <widget class="QStackedWidget" name="stackedWidgetLogin">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>1201</width>
+     <height>621</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">/* ================= GLOBAL =================== */
+QDialog {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+                               stop:0 #f0f4f8, stop:1 #e2e8f0);
+    font-family: &quot;Segoe UI&quot;, &quot;Arial&quot;, sans-serif;
+}
+
+/* ================= TITRES =================== */
+QLabel {
+    color: #1e293b;
+    font-weight: 600;
+}
+
+/* Titres principaux */
+QLabel#labelLoginTitle,
+QLabel#labelQuestionTitle,
+QLabel#labelPINTitle,
+QLabel#labelNewPassTitle {
+    font-size: 28px;
+    font-weight: 700;
+    color: #1e40af;
+    qproperty-alignment: AlignCenter;
+    margin-bottom: 10px;
+}
+
+/* Question label */
+QLabel#labelQuestion {
+    font-size: 14px;
+    color: #475569;
+    background-color: #f1f5f9;
+    border-radius: 12px;
+    padding: 10px 15px;
+    border: 1px solid #cbd5e1;
+    min-height: 30px;
+    qproperty-alignment: AlignCenter;
+}
+
+/* ================= QLineEdit ================ */
+QLineEdit {
+    background-color: #ffffff;
+    border: 1.5px solid #cbd5e1;
+    border-radius: 12px;
+    padding: 12px 16px;
+    font-size: 15px;
+    color: #1e293b;
+    selection-background-color: #1e40af;
+    selection-color: white;
+}
+
+QLineEdit::placeholder {
+    color: #94a3b8;
+}
+
+QLineEdit:focus {
+    border: 2px solid #1e40af;
+    background-color: #ffffff;
+}
+
+/* PIN ou password spacing */
+QLineEdit#lineEditResetPIN,
+QLineEdit#lineEditResetNewPass,
+QLineEdit#lineEditResetConfirm {
+    letter-spacing: 10px;
+    font-family: &quot;Courier New&quot;, monospace;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+/* States */
+QLineEdit[errorState=&quot;true&quot;] {
+    border-color: #ef4444;
+    background-color: #fef2f2;
+}
+
+QLineEdit[successState=&quot;true&quot;] {
+    border-color: #10b981;
+    background-color: #f0fdf4;
+}
+
+/* ================= QPushButton =============== */
+QPushButton {
+    background-color: #1e40af;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 14px 28px;
+    font-size: 16px;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+
+QPushButton:hover {
+    background-color: #1d4ed8;
+    cursor: pointer;
+}
+
+QPushButton:pressed {
+    background-color: #1e3a8a;
+}
+
+QPushButton:disabled {
+    background-color: #cbd5e1;
+    color: #94a3b8;
+}
+
+/* Boutons validation verts */
+QPushButton#btnValiderQuestion,
+QPushButton#btnValiderPIN,
+QPushButton#btnResetFinal {
+    background-color: #10b981;
+}
+
+QPushButton#btnValiderQuestion:hover,
+QPushButton#btnValiderPIN:hover,
+QPushButton#btnResetFinal:hover {
+    background-color: #0f766e;
+}
+
+/* Boutons retour lien */
+QPushButton#btnBackQuestion,
+QPushButton#btnBackPIN,
+QPushButton#btnBackNewPass {
+    background-color: transparent;
+    color: #475569;
+    border: none;
+    text-decoration: underline;
+    font-size: 14px;
+    padding: 6px;
+}
+
+QPushButton#btnBackQuestion:hover,
+QPushButton#btnBackPIN:hover,
+QPushButton#btnBackNewPass:hover {
+    color: #1e40af;
+    text-decoration: none;
+}
+
+/* ================= QCheckBox ================= */
+QCheckBox {
+    color: #475569;
+    font-size: 14px;
+    spacing: 10px;
+}
+
+QCheckBox::indicator {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #cbd5e1;
+    border-radius: 6px;
+    background-color: #ffffff;
+}
+
+QCheckBox::indicator:hover {
+    border-color: #1e40af;
+}
+
+QCheckBox::indicator:checked {
+    background-color: #1e40af;
+    border-color: #1e40af;
+    image: url('data:image/svg+xml;utf8,&lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; width=&quot;20&quot; height=&quot;20&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;white&quot; stroke-width=&quot;3&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;&gt;&lt;polyline points=&quot;20 6 9 17 4 12&quot;/&gt;&lt;/svg&gt;');
+}
+
+/* ================= MESSAGES ================= */
+QLabel.error-label {
+    color: #b91c1c;
+    background-color: #fee2e2;
+    border-radius: 10px;
+    padding: 10px 15px;
+}
+
+QLabel.success-label {
+    color: #047857;
+    background-color: #d1fae5;
+    border-radius: 10px;
+    padding: 10px 15px;
+}
+
+QLabel.warning-label {
+    color: #92400e;
+    background-color: #ffedd5;
+    border-radius: 10px;
+    padding: 10px 15px;
+}
+
+/* ================= CARTES &amp; PAGES ================= */
+QWidget#page_2,
+QWidget#page_3,
+QWidget#page_4 {
+    background-color: #ffffff;
+    border-radius: 16px;
+    border: 1px solid #e2e8f0;
+    margin: 20px;
+    padding: 20px;
+    box-shadow: 0px 4px 15px rgba(0,0,0,0.05);
+}
+</string>
+   </property>
+   <property name="currentIndex">
+    <number>0</number>
+   </property>
+   <widget class="QWidget" name="page">
+    <widget class="QLineEdit" name="lineEdit_mdp">
+     <property name="geometry">
+      <rect>
+       <x>480</x>
+       <y>250</y>
+       <width>261</width>
+       <height>51</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLabel" name="labelLoginTitle">
+     <property name="geometry">
+      <rect>
+       <x>500</x>
+       <y>60</y>
+       <width>191</width>
+       <height>81</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Connexion</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushButton_login">
+     <property name="geometry">
+      <rect>
+       <x>520</x>
+       <y>360</y>
+       <width>181</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background-color: rgb(255, 199, 135);</string>
+     </property>
+     <property name="text">
+      <string>Login</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="lineEdit_nom">
+     <property name="geometry">
+      <rect>
+       <x>480</x>
+       <y>180</y>
+       <width>261</width>
+       <height>51</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QCheckBox" name="checkBoxAfficherMDP">
+     <property name="geometry">
+      <rect>
+       <x>490</x>
+       <y>309</y>
+       <width>201</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Afficher mot de passe</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushButton_oublie">
+     <property name="geometry">
+      <rect>
+       <x>500</x>
+       <y>410</y>
+       <width>221</width>
+       <height>61</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QPushButton#pushButton_oublie {
+    background: transparent;
+    border: none;
+    color: #0078D4;
+    font-size: 14px;
+    cursor: pointer;
+}
+</string>
+     </property>
+     <property name="text">
+      <string>Mot de passe oublié ?</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="bg">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>0</y>
+       <width>1201</width>
+       <height>601</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="pixmap">
+      <pixmap>../../Downloads/smart drive/smart drive/bg.png</pixmap>
+     </property>
+     <property name="scaledContents">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QWidget" name="page_2">
+    <widget class="QLabel" name="labelQuestionTitle">
+     <property name="geometry">
+      <rect>
+       <x>380</x>
+       <y>60</y>
+       <width>421</width>
+       <height>71</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Vérification question secrète</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="lineEditResetUsername">
+     <property name="geometry">
+      <rect>
+       <x>470</x>
+       <y>160</y>
+       <width>241</width>
+       <height>51</height>
+      </rect>
+     </property>
+     <property name="placeholderText">
+      <string>             Nom d’utilisateur</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="labelQuestion">
+     <property name="geometry">
+      <rect>
+       <x>430</x>
+       <y>270</y>
+       <width>351</width>
+       <height>61</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="lineEditResetAnswer">
+     <property name="geometry">
+      <rect>
+       <x>430</x>
+       <y>340</y>
+       <width>351</width>
+       <height>61</height>
+      </rect>
+     </property>
+     <property name="placeholderText">
+      <string>                               Réponse</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="btnBackQuestion">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>540</y>
+       <width>211</width>
+       <height>61</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Retour à la connexion</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="btnValiderQuestion">
+     <property name="geometry">
+      <rect>
+       <x>480</x>
+       <y>420</y>
+       <width>251</width>
+       <height>51</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Suivant</string>
+     </property>
+    </widget>
+    <widget class="QCheckBox" name="checkBoxVerifierNom">
+     <property name="geometry">
+      <rect>
+       <x>470</x>
+       <y>210</y>
+       <width>261</width>
+       <height>51</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Afficher  la question secrete</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="bg2">
+     <property name="geometry">
+      <rect>
+       <x>-60</x>
+       <y>-20</y>
+       <width>1321</width>
+       <height>631</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="pixmap">
+      <pixmap>../../Downloads/smart drive/smart drive/bg.png</pixmap>
+     </property>
+     <property name="scaledContents">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QWidget" name="page_3">
+    <widget class="QLabel" name="labelPINTitle">
+     <property name="geometry">
+      <rect>
+       <x>400</x>
+       <y>60</y>
+       <width>371</width>
+       <height>71</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Vérification Code PIN</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="lineEditResetPIN">
+     <property name="geometry">
+      <rect>
+       <x>450</x>
+       <y>250</y>
+       <width>291</width>
+       <height>51</height>
+      </rect>
+     </property>
+     <property name="echoMode">
+      <enum>QLineEdit::EchoMode::Password</enum>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="btnValiderPIN">
+     <property name="geometry">
+      <rect>
+       <x>500</x>
+       <y>320</y>
+       <width>181</width>
+       <height>51</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Valider </string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="btnBackPIN">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>550</y>
+       <width>301</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Retour à la page question secrète</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label">
+     <property name="geometry">
+      <rect>
+       <x>460</x>
+       <y>210</y>
+       <width>211</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Entrer votre code PIN</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="bg3">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>0</y>
+       <width>1201</width>
+       <height>601</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="pixmap">
+      <pixmap>../../Downloads/smart drive/smart drive/bg.png</pixmap>
+     </property>
+     <property name="scaledContents">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QWidget" name="page_4">
+    <widget class="QLineEdit" name="lineEditResetNewPass">
+     <property name="geometry">
+      <rect>
+       <x>420</x>
+       <y>200</y>
+       <width>301</width>
+       <height>61</height>
+      </rect>
+     </property>
+     <property name="echoMode">
+      <enum>QLineEdit::EchoMode::Password</enum>
+     </property>
+    </widget>
+    <widget class="QLabel" name="labelNewPassTitle">
+     <property name="geometry">
+      <rect>
+       <x>380</x>
+       <y>50</y>
+       <width>401</width>
+       <height>61</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Réinitialiser le mot de passe</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="btnBackNewPass">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>550</y>
+       <width>201</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Retour à la page PIN</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="btnResetFinal">
+     <property name="geometry">
+      <rect>
+       <x>440</x>
+       <y>410</y>
+       <width>261</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Sauvegarde le mot de passe</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="lineEditResetConfirm">
+     <property name="geometry">
+      <rect>
+       <x>420</x>
+       <y>320</y>
+       <width>301</width>
+       <height>61</height>
+      </rect>
+     </property>
+     <property name="echoMode">
+      <enum>QLineEdit::EchoMode::Password</enum>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_2">
+     <property name="geometry">
+      <rect>
+       <x>420</x>
+       <y>160</y>
+       <width>261</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Entrer le  nouveau mot de passe</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_3">
+     <property name="geometry">
+      <rect>
+       <x>420</x>
+       <y>280</y>
+       <width>311</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Confirmation de  nouveau mot de passe</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="bg4">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>0</y>
+       <width>1201</width>
+       <height>601</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="pixmap">
+      <pixmap>../../Downloads/smart drive/smart drive/bg.png</pixmap>
+     </property>
+     <property name="scaledContents">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </widget>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

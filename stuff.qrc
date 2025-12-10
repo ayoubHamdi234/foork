@@ -1,0 +1,28 @@
+<RCC>
+    <qresource prefix="/images">
+        <file>logo.png</file>
+        <file>cours.png</file>
+        <file>dash.png</file>
+        <file>deconnexion.png</file>
+        <file>eleves.png</file>
+        <file>employe.png</file>
+        <file>equip.png</file>
+        <file>exam.png</file>
+        <file>help.png</file>
+        <file>parametres.png</file>
+        <file>veh.png</file>
+        <file>annuler.png</file>
+        <file>annuler2.png</file>
+        <file>delete.png</file>
+        <file>modif.png</file>
+        <file>pdf.png</file>
+        <file>rech.png</file>
+        <file>tri.png</file>
+        <file>valid.png</file>
+        <file>suggestion.png</file>
+        <file>chatbot.png</file>
+        <file>bg.png</file>
+        <file>images/tunis_map.png</file>
+        <file>schedule.png</file>
+    </qresource>
+</RCC>
