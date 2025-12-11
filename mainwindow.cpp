@@ -41,10 +41,7 @@
 #include <QScrollArea>
 #include "vehicule.h"
 #include <QDir>
-#include "arduino.h"
 #include "badge.h"
-
-Badge *badge;
 
 
 
@@ -290,6 +287,7 @@ MainWindow::MainWindow(QWidget *parent)
 
 
     badge = new Badge(this);
+    connect(badge, &Badge::badgeProcessed, this, &MainWindow::onBadgeProcessed);
 
     if (badge->connectArduino()) {
         qDebug() << "Arduino ready.";
@@ -312,19 +310,6 @@ MainWindow::MainWindow(QWidget *parent)
 
 
 
-
-
-    arduino = new Arduino(this);
-
-        // Assure-toi que ta QSqlDatabase est déjà ouverte AVANT d'appeler connectArduino()
-        // (tu as dit que la DB est déjà connectée dans ton app)
-        if (!arduino->connectArduino()) {
-            qDebug() << "Impossible de connecter Arduino";
-        } else {
-            qDebug() << "Arduino connecté";
-        }
-
-        connect(arduino, &Arduino::idProcessed, this, &MainWindow::onIdProcessed);
 
 
     ui->graphicsView_map->setVisible(false);
@@ -1001,6 +986,18 @@ void MainWindow::onIdProcessed(const QString &id, bool granted)
     qDebug() << info;
     // si tu as un QLabel (ui->labelStatus) tu peux faire :
     // ui->labelStatus->setText(info);
+}
+
+void MainWindow::onBadgeProcessed(const QString &uid, bool granted,
+                                  const QString &nom, const QString &prenom)
+{
+    const QString fullName = QString("%1 %2").arg(prenom, nom).trimmed();
+    const QString status = granted
+                               ? tr("Accès autorisé pour %1").arg(fullName)
+                               : tr("Accès refusé (UID %1)").arg(uid);
+
+    statusBar()->showMessage(status, 5000);
+    qDebug() << "[UI]" << status;
 }
 
 // ==================== AJOUTER EMPLOYÉ ====================

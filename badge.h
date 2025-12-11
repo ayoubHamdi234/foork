@@ -6,6 +6,7 @@
 #include <QSqlQuery>
 #include <QSqlError>
 #include <QDebug>
+#include <QSerialPortInfo>
 
 class Badge : public QObject
 {
@@ -29,6 +30,7 @@ private:
 
     QString detectArduinoPort();             // choose port like COM3
     void processUID(const QString &uid);     // database check
+    QString escapeField(const QString &value) const;
 };
 
 #endif // BADGE_H

@@ -1,5 +1,5 @@
 #include "badge.h"
-#include <QSerialPortInfo>
+#include <QVariant>
 
 Badge::Badge(QObject *parent) :
     QObject(parent),
@@ -14,10 +14,18 @@ Badge::~Badge()
 
 QString Badge::detectArduinoPort()
 {
-    // SIMPLE VERSION: force the COM port
-    return "COM7";
+    const auto ports = QSerialPortInfo::availablePorts();
 
-    // If you want auto-detect later, I can add it for you.
+    for (const QSerialPortInfo &info : ports) {
+        const QString desc = info.description().toLower();
+        if (desc.contains("arduino") || desc.contains("usb"))
+            return info.portName();
+    }
+
+    if (!ports.isEmpty())
+        return ports.first().portName();
+
+    return {};
 }
 
 bool Badge::connectArduino()
@@ -64,10 +72,20 @@ void Badge::readSerial()
 
 void Badge::processUID(const QString &uid)
 {
+    bool ok = false;
+    const qulonglong idEmploye = uid.toULongLong(&ok);
+
+    if (!ok) {
+        qDebug() << "[QT] UID non numerique (ID_EMPLOYE attendu):" << uid;
+        sendToArduino("NOK");
+        emit badgeProcessed(uid, false, "", "");
+        return;
+    }
+
     // ===== Query Oracle EMPLOYES =====
     QSqlQuery q;
-    q.prepare("SELECT NOM, PRENOM FROM EMPLOYES WHERE RFID_UID = :uid");
-    q.bindValue(":uid", uid);
+    q.prepare("SELECT NOM, PRENOM FROM EMPLOYES WHERE ID_EMPLOYE = :id");
+    q.bindValue(":id", QVariant::fromValue(idEmploye));
 
     if (!q.exec()) {
         qDebug() << "[QT] SQL Error:" << q.lastError().text();
@@ -77,22 +95,31 @@ void Badge::processUID(const QString &uid)
     }
 
     if (!q.next()) {
-        qDebug() << "[QT] Access denied for UID:" << uid;
+        qDebug() << "[QT] Access denied for ID_EMPLOYE:" << idEmploye;
         sendToArduino("NOK");
         emit badgeProcessed(uid, false, "", "");
         return;
     }
 
     // ===== Access Granted =====
-    QString nom = q.value(0).toString();
-    QString prenom = q.value(1).toString();
+    const QString nom = escapeField(q.value(0).toString());
+    const QString prenom = escapeField(q.value(1).toString());
 
-    QString msg = QString("OK:%1:%2").arg(nom).arg(prenom);
+    QString msg = QString("OK:%1:%2").arg(nom, prenom);
     sendToArduino(msg);
 
     qDebug() << "[QT] Access granted to" << nom << prenom;
 
     emit badgeProcessed(uid, true, nom, prenom);
+}
+
+QString Badge::escapeField(const QString &value) const
+{
+    QString cleaned = value;
+    cleaned.replace(':', ' ');
+    cleaned.replace('\n', ' ');
+    cleaned.replace('\r', ' ');
+    return cleaned.trimmed();
 }
 
 void Badge::sendToArduino(const QString &msg)
