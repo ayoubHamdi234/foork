@@ -343,8 +343,10 @@ bool Login::columnExists(const QString &column) const
         return false;
     }
 
-    if (rec.indexOf(column, Qt::CaseInsensitive) != -1)
-        return true;
+    for (int i = 0; i < rec.count(); ++i) {
+        if (rec.fieldName(i).compare(column, Qt::CaseInsensitive) == 0)
+            return true;
+    }
 
     return false;
 }
@@ -549,7 +551,7 @@ void Login::onResetPasswordClicked()
         qDebug() << "✅ Mot de passe mis à jour pour:" << currentUsername;
         backToLogin();
     } else {
-        auto placeholder = QMessageBox::critical(
+        QMessageBox::critical(
             this, "Erreur",
             "Erreur lors de la mise à jour du mot de passe:\n" +
                 q.lastError().text());
