@@ -44,6 +44,7 @@ private:
 
     // Méthodes privées
     QString getValue(QString column);
+    bool columnExists(const QString &column) const;
     void clearForgotPasswordFields();
     void debugDatabaseContent();
 
