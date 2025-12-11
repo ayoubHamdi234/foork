@@ -41,7 +41,7 @@ bool Employe::ajouter()
 {
     QSqlQuery query;
     query.prepare("INSERT INTO Employes "
-                  "(nom, prenom, genre, cin, email, datenaissance, adresse, telephone, poste, dateembauche, mot_de_passe, question, reponse, pin) "
+                  "(nom, prenom, genre, cin, email, datenaissance, adresse, telephone, poste, dateembauche, mot_de_passe, question, reponse, a_pin) "
                   "VALUES "
                   "(:nom, :prenom, :genre, :cin, :email, :datenaissance, :adresse, :telephone, :poste, :dateembauche, :mot_de_passe, :question, :reponse, :pin)");
 

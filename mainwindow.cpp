@@ -1154,7 +1154,7 @@ void MainWindow::modifierEmploye()
                   "nom = :nom, prenom = :prenom, genre = :genre, cin = :cin, "
                   "email = :email, datenaissance = :datenaissance, adresse = :adresse, "
                   "telephone = :telephone, poste = :poste, dateembauche = :dateembauche, "
-                  "mot_de_passe = :mot_de_passe, question = :question, reponse = :reponse, pin = :pin "
+                  "mot_de_passe = :mot_de_passe, question = :question, reponse = :reponse, a_pin = :pin "
                   "WHERE id = :id");
 
     query.bindValue(":nom", e.getNom());

@@ -208,7 +208,7 @@ void Login::debugDatabaseContent()
     }
 
     QSqlQuery query;
-    if (query.exec("SELECT id_employe, nom, prenom, mot_de_passe, question, reponse, pin FROM employes")) {
+    if (query.exec("SELECT id_employe, nom, prenom, mot_de_passe, question, reponse, a_pin FROM employes")) {
         int count = 0;
         while (query.next()) {
             count++;
@@ -266,14 +266,19 @@ QString Login::getValue(QString column)
         return "";
     }
 
+    QString dbColumn = column;
+    if (column.compare("pin", Qt::CaseInsensitive) == 0) {
+        dbColumn = "a_pin";
+    }
+
     QSqlQuery q;
-    q.prepare("SELECT " + column + " FROM employes WHERE nom = :nom");
+    q.prepare("SELECT " + dbColumn + " FROM employes WHERE nom = :nom");
     q.bindValue(":nom", currentUsername);
 
     if (q.exec()) {
         if (q.next()) {
             QString value = q.value(0).toString();
-            qDebug() << "getValue(" << column << ") pour" << currentUsername << "=" << value;
+            qDebug() << "getValue(" << dbColumn << ") pour" << currentUsername << "=" << value;
             return value;
         } else {
             qDebug() << "getValue: Aucun résultat pour" << currentUsername;
