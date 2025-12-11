@@ -81,9 +81,9 @@ void Badge::processUID(const QString &uid)
     q.prepare(
         "SELECT NOM, PRENOM "
         "FROM EMPLOYES "
-        "WHERE RFID_UID = :uid"
+        "WHERE UPPER(TRIM(RFID_UID)) = :uid"
         );
-    q.bindValue(":uid", uid);
+    q.bindValue(":uid", uid.toUpper());
 
     if (!q.exec()) {
         qDebug() << "[QT] Erreur SQL:" << q.lastError().text();
