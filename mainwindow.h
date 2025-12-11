@@ -18,7 +18,7 @@
 #include <QGraphicsEllipseItem>
 #include <QMap>
 #include <QByteArray>
-#include "badge.h"
+#include "arduino.h"
 
 
 struct SupplierInfo {
@@ -43,8 +43,6 @@ public:
 
 private slots:
     void onIdProcessed(const QString &id, bool granted); // slot pour logs/UI
-    void onBadgeProcessed(const QString &uid, bool granted,
-                          const QString &nom, const QString &prenom);
 
     // Fonctions employés
     void ajouterEmploye();
@@ -149,7 +147,7 @@ private slots:
 private:
     Ui::MainWindow *ui;
     Examen E;
-    Badge *badge; // Gestion du badge RFID employé
+    Arduino *arduino; // pointeur géré par MainWindow
 
     QByteArray imageEquipementData;
 

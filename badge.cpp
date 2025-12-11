@@ -1,10 +1,11 @@
 #include "badge.h"
-#include <QVariant>
+#include <QSerialPortInfo>
 
-Badge::Badge(QObject *parent) :
-    QObject(parent),
+Badge::Badge(QObject *parent)
+    : QObject(parent),
     serial(new QSerialPort(this))
-{}
+{
+}
 
 Badge::~Badge()
 {
@@ -12,27 +13,20 @@ Badge::~Badge()
         serial->close();
 }
 
+/* ================== PORT ARDUINO ================== */
 QString Badge::detectArduinoPort()
 {
-    const auto ports = QSerialPortInfo::availablePorts();
-
-    for (const QSerialPortInfo &info : ports) {
-        const QString desc = info.description().toLower();
-        if (desc.contains("arduino") || desc.contains("usb"))
-            return info.portName();
-    }
-
-    if (!ports.isEmpty())
-        return ports.first().portName();
-
-    return {};
+    // ✅ Fixe (simple et fiable)
+    return "COM7";
 }
 
+/* ================== CONNEXION ================== */
 bool Badge::connectArduino()
 {
     QString portName = detectArduinoPort();
+
     if (portName.isEmpty()) {
-        qDebug() << "[QT] No Arduino port detected.";
+        qDebug() << "[QT] Aucun port Arduino détecté.";
         return false;
     }
 
@@ -44,88 +38,75 @@ bool Badge::connectArduino()
     serial->setFlowControl(QSerialPort::NoFlowControl);
 
     if (!serial->open(QIODevice::ReadWrite)) {
-        qDebug() << "[QT] Cannot open" << portName << ":" << serial->errorString();
+        qDebug() << "[QT] Impossible d’ouvrir" << portName
+                 << ":" << serial->errorString();
         return false;
     }
 
-    connect(serial, &QSerialPort::readyRead, this, &Badge::readSerial);
+    connect(serial, &QSerialPort::readyRead,
+            this, &Badge::readSerial);
 
-    qDebug() << "[QT] Arduino connected on" << portName;
-
-    qDebug() << "Trying to open port:" << portName;
-
+    qDebug() << "[QT] Arduino connecté sur" << portName;
     return true;
 }
 
+/* ================== LECTURE SERIE ================== */
 void Badge::readSerial()
 {
     while (serial->canReadLine()) {
         QString line = QString::fromUtf8(serial->readLine()).trimmed();
-        qDebug() << "[QT] Received from Arduino:" << line;
+        qDebug() << "[QT] Reçu Arduino:" << line;
 
+        // Format attendu : ID:123456
         if (line.startsWith("ID:")) {
             QString uid = line.mid(3).trimmed();
             processUID(uid);
+        } else {
+            qDebug() << "[QT] Message ignoré (format inconnu)";
         }
     }
 }
 
+/* ================== TRAITEMENT UID ================== */
 void Badge::processUID(const QString &uid)
 {
-    bool ok = false;
-    const qulonglong idEmploye = uid.toULongLong(&ok);
-
-    if (!ok) {
-        qDebug() << "[QT] UID non numerique (ID_EMPLOYE attendu):" << uid;
-        sendToArduino("NOK");
-        emit badgeProcessed(uid, false, "", "");
-        return;
-    }
-
-    // ===== Query Oracle EMPLOYES =====
     QSqlQuery q;
-    q.prepare("SELECT NOM, PRENOM FROM EMPLOYES WHERE ID_EMPLOYE = :id");
-    q.bindValue(":id", QVariant::fromValue(idEmploye));
+    q.prepare(
+        "SELECT NOM, PRENOM "
+        "FROM EMPLOYES "
+        "WHERE RFID_UID = :uid"
+        );
+    q.bindValue(":uid", uid);
 
     if (!q.exec()) {
-        qDebug() << "[QT] SQL Error:" << q.lastError().text();
+        qDebug() << "[QT] Erreur SQL:" << q.lastError().text();
         sendToArduino("NOK");
         emit badgeProcessed(uid, false, "", "");
         return;
     }
 
     if (!q.next()) {
-        qDebug() << "[QT] Access denied for ID_EMPLOYE:" << idEmploye;
+        qDebug() << "[QT] Accès refusé UID:" << uid;
         sendToArduino("NOK");
         emit badgeProcessed(uid, false, "", "");
         return;
     }
 
-    // ===== Access Granted =====
-    const QString nom = escapeField(q.value(0).toString());
-    const QString prenom = escapeField(q.value(1).toString());
+    QString nom = cleanField(q.value(0).toString());
+    QString prenom = cleanField(q.value(1).toString());
 
-    QString msg = QString("OK:%1:%2").arg(nom, prenom);
-    sendToArduino(msg);
+    QString reply = QString("OK:%1:%2").arg(nom).arg(prenom);
+    sendToArduino(reply);
 
-    qDebug() << "[QT] Access granted to" << nom << prenom;
-
+    qDebug() << "[QT] Accès autorisé:" << nom << prenom;
     emit badgeProcessed(uid, true, nom, prenom);
 }
 
-QString Badge::escapeField(const QString &value) const
-{
-    QString cleaned = value;
-    cleaned.replace(':', ' ');
-    cleaned.replace('\n', ' ');
-    cleaned.replace('\r', ' ');
-    return cleaned.trimmed();
-}
-
+/* ================== ENVOI ARDUINO ================== */
 void Badge::sendToArduino(const QString &msg)
 {
     if (!serial->isOpen()) {
-        qDebug() << "[QT] Port not open. Cannot send to Arduino.";
+        qDebug() << "[QT] Port série non ouvert";
         return;
     }
 
@@ -136,5 +117,15 @@ void Badge::sendToArduino(const QString &msg)
     serial->write(out);
     serial->flush();
 
-    qDebug() << "[QT] Sent to Arduino:" << msg;
+    qDebug() << "[QT] Envoyé Arduino:" << msg;
+}
+
+/* ================== NETTOYAGE TEXTE ================== */
+QString Badge::cleanField(const QString &s)
+{
+    QString r = s;
+    r.replace(':', ' ');
+    r.replace('\n', ' ');
+    r.replace('\r', ' ');
+    return r.trimmed();
 }

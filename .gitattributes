@@ -1,5 +1,0 @@
-# Treat Arduino sketches as text so diffs render instead of being flagged binary
-*.ino text diff linguist-language=C++ eol=lf
-
-# Ensure Markdown files (including README.md) are always treated as text
-*.md text diff eol=lf
