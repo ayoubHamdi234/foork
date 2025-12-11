@@ -2,6 +2,8 @@
 #include "qsqlerror.h"
 #include "ui_login.h"
 #include <QSqlQuery>
+#include <QSqlDatabase>
+#include <QSqlRecord>
 #include <QMessageBox>
 #include <QDebug>
 #include <QRegularExpression>
@@ -208,7 +210,24 @@ void Login::debugDatabaseContent()
     }
 
     QSqlQuery query;
-    if (query.exec("SELECT id_employe, nom, prenom, mot_de_passe, question, reponse, pin FROM employes")) {
+    QStringList selectColumns = {"id_employe", "nom", "prenom", "mot_de_passe"};
+    bool hasQuestion = columnExists("question");
+    bool hasReponse = columnExists("reponse");
+    bool hasPin = columnExists("pin");
+
+    if (hasQuestion) selectColumns << "question";
+    if (hasReponse)  selectColumns << "reponse";
+    if (hasPin)      selectColumns << "pin";
+
+    if (selectColumns.size() > 4) {
+        qDebug() << "Colonnes optionnelles présentes:" << selectColumns;
+    } else {
+        qDebug() << "⚠️ Colonnes optionnelles absentes (appliquez le patch SQL si besoin)";
+    }
+
+    QString selectQuery = "SELECT " + selectColumns.join(", ") + " FROM employes";
+
+    if (query.exec(selectQuery)) {
         int count = 0;
         while (query.next()) {
             count++;
@@ -217,9 +236,28 @@ void Login::debugDatabaseContent()
             qDebug() << "Nom:" << query.value(1).toString();
             qDebug() << "Prénom:" << query.value(2).toString();
             qDebug() << "Mot de passe:" << (query.value(3).toString().isEmpty() ? "VIDE" : "***");
-            qDebug() << "Question:" << (query.value(4).toString().isEmpty() ? "VIDE" : query.value(4).toString());
-            qDebug() << "Réponse:" << (query.value(5).toString().isEmpty() ? "VIDE" : query.value(5).toString());
-            qDebug() << "PIN:" << (query.value(6).toString().isEmpty() ? "VIDE" : query.value(6).toString());
+
+            int colIndex = 4;
+
+            if (hasQuestion) {
+                qDebug() << "Question:" << (query.value(colIndex).toString().isEmpty()
+                                             ? "VIDE"
+                                             : query.value(colIndex).toString());
+                ++colIndex;
+            }
+
+            if (hasReponse) {
+                qDebug() << "Réponse:" << (query.value(colIndex).toString().isEmpty()
+                                            ? "VIDE"
+                                            : query.value(colIndex).toString());
+                ++colIndex;
+            }
+
+            if (hasPin) {
+                qDebug() << "PIN:" << (query.value(colIndex).toString().isEmpty()
+                                        ? "VIDE"
+                                        : query.value(colIndex).toString());
+            }
         }
         if (count == 0) {
             qDebug() << "⚠️ Table employes est VIDE!";
@@ -261,6 +299,12 @@ void Login::openNewPasswordPage()
 // Récupérer une valeur de la base de données
 QString Login::getValue(QString column)
 {
+    if (!columnExists(column)) {
+        qDebug() << "⚠️ Colonne manquante dans EMPLOYES:" << column
+                 << "(appliquez le patch SQL si nécessaire)";
+        return "";
+    }
+
     if (currentUsername.isEmpty()) {
         qDebug() << "getValue: currentUsername est vide!";
         return "";
@@ -283,6 +327,28 @@ QString Login::getValue(QString column)
     }
 
     return "";
+}
+
+bool Login::columnExists(const QString &column) const
+{
+    QSqlDatabase db = QSqlDatabase::database();
+    if (!db.isOpen()) {
+        qDebug() << "⚠️ Base non connectée, impossible de vérifier la colonne";
+        return false;
+    }
+
+    QSqlRecord rec = db.record("EMPLOYES");
+    if (rec.isEmpty()) {
+        qDebug() << "⚠️ Impossible de récupérer la structure de EMPLOYES";
+        return false;
+    }
+
+    for (int i = 0; i < rec.count(); ++i) {
+        if (rec.fieldName(i).compare(column, Qt::CaseInsensitive) == 0)
+            return true;
+    }
+
+    return false;
 }
 
 // Vérification du nom d'utilisateur
@@ -485,7 +551,7 @@ void Login::onResetPasswordClicked()
         qDebug() << "✅ Mot de passe mis à jour pour:" << currentUsername;
         backToLogin();
     } else {
-        auto placeholder = QMessageBox::critical(
+        QMessageBox::critical(
             this, "Erreur",
             "Erreur lors de la mise à jour du mot de passe:\n" +
                 q.lastError().text());

@@ -2,6 +2,7 @@
 #include <QSqlQuery>
 #include <QSqlError>
 #include <QDebug>
+#include <utility>
 
 Equipement::Equipement() {}
 
@@ -131,7 +132,7 @@ QSqlQueryModel* Equipement::afficher()
                   "LIEU FROM EQUIPEMENTS ORDER BY ID_EQUIPEMENT");
 
     if (query.exec()) {
-        model->setQuery(query);
+        model->setQuery(std::move(query));
         model->setHeaderData(0, Qt::Horizontal, "ID");
         model->setHeaderData(1, Qt::Horizontal, "Catégorie");
         model->setHeaderData(2, Qt::Horizontal, "État");
@@ -164,7 +165,7 @@ QSqlQueryModel* Equipement::rechercher(QString valeur)
     query.bindValue(":valeur", searchPattern);
 
     if (query.exec()) {
-        model->setQuery(query);
+        model->setQuery(std::move(query));
         model->setHeaderData(0, Qt::Horizontal, "ID");
         model->setHeaderData(1, Qt::Horizontal, "Catégorie");
         model->setHeaderData(2, Qt::Horizontal, "État");
@@ -196,7 +197,7 @@ QSqlQueryModel* Equipement::trier(QString critere)
                   "LIEU FROM EQUIPEMENTS ORDER BY " + critere);
 
     if (query.exec()) {
-        model->setQuery(query);
+        model->setQuery(std::move(query));
         model->setHeaderData(0, Qt::Horizontal, "ID");
         model->setHeaderData(1, Qt::Horizontal, "Catégorie");
         model->setHeaderData(2, Qt::Horizontal, "État");

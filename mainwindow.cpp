@@ -54,38 +54,6 @@ Badge *badge;
 
 
 
-static QPointF coordsFromLieu(const QString &lieuRaw, const QSize &mapSize)
-{
-    const double w = mapSize.width();
-    const double h = mapSize.height();
-
-    QString lieu = lieuRaw.toLower().trimmed();
-
-    if (lieu.contains("tunis"))
-        return QPointF(0.55 * w, 0.25 * h);
-    else if (lieu.contains("ariana"))
-        return QPointF(0.52 * w, 0.22 * h);
-    else if (lieu.contains("ben arous"))
-        return QPointF(0.58 * w, 0.30 * h);
-    else if (lieu.contains("manouba"))
-        return QPointF(0.50 * w, 0.26 * h);
-    else if (lieu.contains("nabeul"))
-        return QPointF(0.70 * w, 0.25 * h);
-    else if (lieu.contains("sousse"))
-        return QPointF(0.65 * w, 0.45 * h);
-    else if (lieu.contains("sfax"))
-        return QPointF(0.65 * w, 0.65 * h);
-    else
-        return QPointF(0.5 * w, 0.5 * h); // centre par défaut
-}
-
-
-
-
-
-
-
-
 
 
 // Histogramme simple sur 4x4x4 = 64 bins
@@ -841,7 +809,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->boutonChercherVoiture->setIcon(rech3);
     ui->boutonChercherVoiture->setIconSize(QSize(25, 25));
 
-    QAction *searchIcon = ui->lineEdit_59->addAction(
+    ui->lineEdit_59->addAction(
         QIcon(":/images/rech.png"),
         QLineEdit::LeadingPosition   // icon on the left side
         );
@@ -1196,6 +1164,7 @@ QString MainWindow::obtenirMotDePasseActuel(int idEmploye)
 }
 
 void MainWindow::remplirChampsDepuisTable_emp(int row, int column) {
+    Q_UNUSED(column);
     if (row < 0) return;
 
     ui->lineEdit_nom_2->setText(ui->table_emp_2->item(row, 1)->text());
@@ -3227,7 +3196,7 @@ void MainWindow::on_ajouter_clicked()
 
     bool idOk, telOk;
     int id = id_text.toInt(&idOk);
-    int tel = tel_text.toInt(&telOk);
+    tel_text.toInt(&telOk);
 
     if (!idOk) {
         QMessageBox::critical(this, "Erreur ID", " L'ID doit être un nombre valide !");

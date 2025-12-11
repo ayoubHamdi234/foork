@@ -29,10 +29,10 @@ Employe::Employe()
 Employe::Employe(QString n, QString p, QString g, QString c, QString e, QDate dn,
                  QString a, QString t, QString po, QDate de, QString mdp,
                  QString q, QString r, QString pin_code, int i)
-    : nom(n), prenom(p), genre(g), cin(c), email(e), dateNaissance(dn),
-    adresse(a), telephone(t), poste(po), dateEmbauche(de),
-    mot_de_passe(mdp), question(q), reponse(r), pin(pin_code), id(i),
-    messages("[]")
+    : id(i),
+      nom(n), prenom(p), genre(g), cin(c), email(e), dateNaissance(dn),
+      adresse(a), telephone(t), poste(po), dateEmbauche(de),
+      mot_de_passe(mdp), messages("[]"), question(q), reponse(r), pin(pin_code)
 {}
 
 // ==================== MÉTHODES CRUD ====================

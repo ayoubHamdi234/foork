@@ -6,6 +6,7 @@
 #include <QSqlQuery>
 #include <QSqlError>
 #include <QDebug>
+#include <QRegularExpression>
 
 class Badge : public QObject
 {
@@ -33,6 +34,7 @@ private:
     QString detectArduinoPort();            // COM7
     void processUID(const QString &uid);    // Vérification DB
     QString cleanField(const QString &s);   // Sécurise le protocole
+    QString normalizeUID(const QString &line); // Nettoyage UID reçu
 };
 
 #endif // BADGE_H

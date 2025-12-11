@@ -59,7 +59,14 @@ void Badge::readSerial()
 
         // Format attendu : ID:123456
         if (line.startsWith("ID:")) {
-            QString uid = line.mid(3).trimmed();
+            QString uid = normalizeUID(line);
+
+            if (uid.isEmpty()) {
+                qDebug() << "[QT] UID vide, message ignoré";
+                sendToArduino("NOK");
+                emit badgeProcessed("", false, "", "");
+                continue;
+            }
             processUID(uid);
         } else {
             qDebug() << "[QT] Message ignoré (format inconnu)";
@@ -74,9 +81,9 @@ void Badge::processUID(const QString &uid)
     q.prepare(
         "SELECT NOM, PRENOM "
         "FROM EMPLOYES "
-        "WHERE RFID_UID = :uid"
+        "WHERE UPPER(TRIM(RFID_UID)) = :uid"
         );
-    q.bindValue(":uid", uid);
+    q.bindValue(":uid", uid.toUpper());
 
     if (!q.exec()) {
         qDebug() << "[QT] Erreur SQL:" << q.lastError().text();
@@ -128,4 +135,23 @@ QString Badge::cleanField(const QString &s)
     r.replace('\n', ' ');
     r.replace('\r', ' ');
     return r.trimmed();
+}
+
+/* ================== NETTOYAGE UID ================== */
+QString Badge::normalizeUID(const QString &line)
+{
+    QString payload = line;
+
+    if (payload.startsWith("ID:"))
+        payload = payload.mid(3);
+
+    payload = payload.trimmed();
+
+    int sepIndex = payload.indexOf(QRegularExpression("[\\s;]"));
+    if (sepIndex != -1)
+        payload = payload.left(sepIndex);
+
+    payload.remove(QRegularExpression("[^A-Fa-f0-9]"));
+
+    return payload.toUpper();
 }
