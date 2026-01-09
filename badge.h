@@ -14,21 +14,25 @@ public:
     explicit Badge(QObject *parent = nullptr);
     ~Badge();
 
-    bool connectArduino();                   // connect to Arduino
-    void sendToArduino(const QString &msg);  // send a command
+    bool connectArduino();                  // Connexion série
+    void sendToArduino(const QString &msg); // Envoi vers Arduino
 
 signals:
-    void badgeProcessed(const QString &uid, bool granted,
-                        const QString &nom, const QString &prenom);
+    // uid, accès autorisé ?, nom, prénom
+    void badgeProcessed(const QString &uid,
+                        bool granted,
+                        const QString &nom,
+                        const QString &prenom);
 
 private slots:
-    void readSerial();                       // called when data received from Arduino
+    void readSerial();                      // Lecture série
 
 private:
     QSerialPort *serial;
 
-    QString detectArduinoPort();             // choose port like COM3
-    void processUID(const QString &uid);     // database check
+    QString detectArduinoPort();            // COM7
+    void processUID(const QString &uid);    // Vérification DB
+    QString cleanField(const QString &s);   // Sécurise le protocole
 };
 
 #endif // BADGE_H
